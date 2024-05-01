@@ -3,11 +3,11 @@ use slotmap::SlotMap;
 use super::node::{Node, NodeId};
 
 pub struct ANN {
-    species: u32,
-    pub nodes: SlotMap<NodeId, Node>,
-    inputs: Vec<NodeId>,
-    inner: Vec<NodeId>,
-    outputs: Vec<NodeId>
+    pub(super) species: u32,
+    pub(super) nodes: SlotMap<NodeId, Node>,
+    pub(super) inputs: Vec<NodeId>,
+    pub(super) inner: Vec<NodeId>,
+    pub(super) outputs: Vec<NodeId>
 }
 
 impl Default for ANN {
@@ -51,7 +51,4 @@ impl ANN {
         self.nodes.insert(node)
     }
 
-    pub fn species_num(&self) -> u32 {
-        self.species
-    }
 }
