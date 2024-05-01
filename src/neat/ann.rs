@@ -22,4 +22,17 @@ impl ANN {
         let nodes: SlotMap<NodeId, Node> = SlotMap::with_key();
         ANN { species: 0, nodes, inputs: vec![], outputs: vec![] }
     }
+    pub fn with_species(&mut self, species: u32) {
+        self.species = species
+    }
+    pub fn with_inputs(&mut self, input_count: usize) {
+        self.inputs = Vec::with_capacity(input_count);
+        for i in 0..input_count {
+            let node = Node::default();
+            self.inputs[i] = self.insert(node);
+        }
+    }
+    fn insert(&mut self, node: Node) -> NodeId {
+        self.nodes.insert(node)
+    }
 }

@@ -7,6 +7,18 @@ pub struct Node {
     edges: Vec<Edge>
 }
 
+impl Default for Node {
+    fn default() -> Self {
+        Self::empty()
+    }
+}
+
+impl Node {
+    pub fn empty() -> Self {
+        Node { activation: None, edges: vec![] }
+    }
+}
+
 new_key_type! {
     pub struct NodeId;
 }
