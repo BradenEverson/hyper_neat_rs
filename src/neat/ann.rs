@@ -1,12 +1,10 @@
-use std::default;
-
 use slotmap::SlotMap;
 
 use super::node::{Node, NodeId};
 
 pub struct ANN {
     species: u32,
-    nodes: SlotMap<NodeId, Node>,
+    pub nodes: SlotMap<NodeId, Node>,
     inputs: Vec<NodeId>,
     inner: Vec<NodeId>,
     outputs: Vec<NodeId>
@@ -24,27 +22,36 @@ impl ANN {
         ANN { species: 0, nodes, inputs: vec![], outputs: vec![], inner: vec![] }
     }
 
-    pub fn with_species(&mut self, species: u32) {
-        self.species = species
+    pub fn with_species(mut self, species: u32) -> Self {
+        self.species = species;
+        self
     }
 
-    pub fn with_inputs(&mut self, input_count: usize) {
-        self.inputs = Vec::with_capacity(input_count);
-        for i in 0..input_count {
+    pub fn with_inputs(mut self, input_count: usize) -> Self {
+        for _ in 0..input_count {
             let node = Node::default();
-            self.inputs[i] = self.insert(node);
+            let node_id = self.insert(node);
+            self.inputs.push(node_id);
         }
+
+        self
     }
 
-    pub fn and_outputs(&mut self, output_count: usize) {
-        self.outputs = Vec::with_capacity(output_count);
-        for i in 0..output_count {
+    pub fn and_outputs(mut self, output_count: usize) -> Self {
+        for _ in 0..output_count {
             let node = Node::default();
-            self.inputs[i] = self.insert(node);
+            let node_id = self.insert(node);
+            self.outputs.push(node_id);
         }
+
+        self
     }
 
     fn insert(&mut self, node: Node) -> NodeId {
         self.nodes.insert(node)
+    }
+
+    pub fn species_num(&self) -> u32 {
+        self.species
     }
 }
