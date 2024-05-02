@@ -18,19 +18,19 @@ pub enum NodeType {
     Inner
 }
 
-impl NodeType {
-    pub fn to_string(&self) -> String {
-        match self {
+impl Display for NodeType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match self {
             Self::Input => "Input",
             Self::Inner => "Inner",
             Self::Output => "Output"
-        }.into()
+        })
     }
 }
 
 impl Display for Node {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({} Node with {} edges)", self.ty.to_string(), self.edges.len())
+        write!(f, "({} Node with {} edges)", self.ty, self.edges.len())
     }
 }
 

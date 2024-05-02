@@ -66,7 +66,7 @@ impl ANN {
                 if !visited.contains(node) {                
                     for edge in self.get(*node).unwrap().edges.iter() {
 
-                        let mut node_val = node_vals.get(node).unwrap_or(&0f32).clone();
+                        let mut node_val = *node_vals.get(node).unwrap_or(&0f32);
 
                         if let Some(act) = &self.get(*node).unwrap().activation {
                             node_val = act.apply(node_val)
