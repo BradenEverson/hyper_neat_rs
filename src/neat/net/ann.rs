@@ -99,7 +99,7 @@ impl ANN {
     }
 
 
-    pub(crate) fn connect(&mut self, from: NodeId, to: NodeId) -> Result<()> {
+    pub fn connect(&mut self, from: NodeId, to: NodeId) -> Result<()> {
         //Ensure from and to both exist in Slotmap
         self.get(to)?;
 

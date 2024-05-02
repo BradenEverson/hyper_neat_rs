@@ -23,7 +23,7 @@ impl Activation {
 }
 
 fn relu(inp: f32) -> f32 {
-    (!(inp < 0f32) as i8 as f32) * inp
+    ((inp >= 0f32) as i8 as f32) * inp
 }
 
 fn sigmoid(inp: f32) -> f32 {
