@@ -139,12 +139,22 @@ impl ANN {
         }
     }
 
+    fn num_edges(&self) -> usize {
+        let mut res = 0;
+
+        for (_, node) in self.nodes.iter() {
+            res += node.edges.len();
+        }
+
+        res
+    }
+
     pub fn init(&mut self, initializer: Initializer) {
-        let seed = self.seed.clone();
-        for (_, node) in self.nodes.iter_mut() {
-            node.edges.iter_mut().for_each(|edge| {
-                edge.update_weight(initializer.gen(&seed));
-            });
+        let weights = initializer.gen_range(&self.seed, self.num_edges());
+        let all_edges = self.nodes.iter_mut().flat_map(|(_,node)| &mut node.edges).collect::<Vec<&mut Edge>>();
+
+        for (i, edge) in all_edges.into_iter().enumerate() {
+            edge.update_weight(weights[i]);
         }
     }
 }
