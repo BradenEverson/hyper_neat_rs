@@ -57,9 +57,9 @@ impl ANN {
         if inputs.len() != self.inputs.len() {
             Err(AnnError::MismatchedInputSizeError(inputs.len(), self.inputs.len()))
         } else {
-            for i in 0..inputs.len() {
-                to_visit.push_front(&self.inputs[i]);
-                node_vals.insert(&self.inputs[i], inputs[i].into());
+            for (i, input) in self.inputs.iter().enumerate() {
+                to_visit.push_front(input);
+                node_vals.insert(input, inputs[i].into());
             }
 
             while let Some(node) = to_visit.pop_back() {
