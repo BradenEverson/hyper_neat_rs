@@ -2,13 +2,15 @@ use std::collections::{HashMap, HashSet, LinkedList};
 
 use slotmap::SlotMap;
 
-use super::{edge::Edge, error::{AnnError, Result}, node::{Node, NodeId, NodeType}};
+use super::{edge::Edge, error::{AnnError, Result}, initializer::Initializer, node::{Node, NodeId, NodeType}};
 
 pub struct ANN {
     pub(super) species: u32,
     pub(super) nodes: SlotMap<NodeId, Node>,
     pub(super) inputs: Vec<NodeId>,
-    pub(super) outputs: Vec<NodeId>
+    pub(super) outputs: Vec<NodeId>,
+
+    seed: Option<String>
 }
 
 impl Default for ANN {
@@ -20,7 +22,7 @@ impl Default for ANN {
 impl ANN {
     pub fn new() -> Self {
         let nodes: SlotMap<NodeId, Node> = SlotMap::with_key();
-        ANN { species: 0, nodes, inputs: vec![], outputs: vec![] }
+        ANN { species: 0, nodes, inputs: vec![], outputs: vec![], seed: None }
     }
 
     pub fn with_species(mut self, species: u32) -> Self {
@@ -35,6 +37,11 @@ impl ANN {
             self.inputs.push(node_id);
         }
 
+        self
+    }
+
+    pub fn with_seed(mut self, seed: String) -> Self {
+        self.seed = Some(seed);
         self
     }
 
@@ -129,6 +136,15 @@ impl ANN {
         match self.nodes.get_mut(id) {
             Some(node) => Ok(node),
             None => Err(AnnError::InvalidNodeIDError)            
+        }
+    }
+
+    pub fn init(&mut self, initializer: Initializer) {
+        let seed = self.seed.clone();
+        for (_, node) in self.nodes.iter_mut() {
+            node.edges.iter_mut().for_each(|edge| {
+                edge.update_weight(initializer.gen(&seed));
+            });
         }
     }
 }

@@ -13,4 +13,7 @@ impl Edge {
             weight: 1f32
         }
     }
+    pub fn update_weight<F: Into<f32>>(&mut self, new_weight: F) {
+        self.weight = new_weight.into()
+    }
 }
