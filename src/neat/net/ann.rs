@@ -8,7 +8,6 @@ pub struct ANN {
     pub(super) species: u32,
     pub(super) nodes: SlotMap<NodeId, Node>,
     pub(super) inputs: Vec<NodeId>,
-    pub(super) inner: Vec<NodeId>,
     pub(super) outputs: Vec<NodeId>
 }
 
@@ -21,7 +20,7 @@ impl Default for ANN {
 impl ANN {
     pub fn new() -> Self {
         let nodes: SlotMap<NodeId, Node> = SlotMap::with_key();
-        ANN { species: 0, nodes, inputs: vec![], outputs: vec![], inner: vec![] }
+        ANN { species: 0, nodes, inputs: vec![], outputs: vec![] }
     }
 
     pub fn with_species(mut self, species: u32) -> Self {
@@ -56,7 +55,7 @@ impl ANN {
         let mut visited: HashSet<&NodeId> = HashSet::new();
 
         if inputs.len() != self.inputs.len() {
-            Err(AnnError::MismatchedInputSizeError(inputs.len(), self.inner.len()))
+            Err(AnnError::MismatchedInputSizeError(inputs.len(), self.inputs.len()))
         } else {
             for i in 0..inputs.len() {
                 to_visit.push(&self.inputs[i]);
@@ -92,10 +91,7 @@ impl ANN {
     }
 
     pub(crate) fn insert(&mut self, node: Node) -> NodeId {
-        let res = self.nodes.insert(node);
-        self.inner.push(res);
-
-        res
+        self.nodes.insert(node)
     }
 
 
