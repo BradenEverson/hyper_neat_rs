@@ -1,5 +1,7 @@
 #[cfg(test)]
 mod tests {
+    use std::time::Instant;
+
     use crate::neat::net::{activation::Activation, ann::ANN, node::Node};
 
     #[test]
@@ -39,6 +41,27 @@ mod tests {
         let fwrd = ann.forward(&[1u8, 2u8]).unwrap();
 
         assert_eq!(fwrd[0], 3f32)
+    }
+
+    #[test]
+    fn force_efficiency() {
+        let mut ann = ANN::new()
+            .with_inputs(2)
+            .and_outputs(1);
+
+        let inputs = ann.inputs.clone();
+        let outputs = ann.outputs.clone();
+
+        for input in inputs.iter() {
+            for output in outputs.iter() {
+                ann.connect(*input, *output).unwrap();
+            }
+        }
+        let start = Instant::now();
+        let _ = ann.forward(&[1u8, 2u8]).unwrap();
+        let elapsed = Instant::now().duration_since(start);
+
+        assert!(elapsed.as_millis() < 2)
     }
 
     #[test]

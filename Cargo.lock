@@ -3,7 +3,7 @@
 version = 3
 
 [[package]]
-name = "hyper_neat_rs"
+name = "neater"
 version = "0.1.0"
 dependencies = [
  "slotmap",
