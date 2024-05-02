@@ -4,3 +4,4 @@ pub mod edge;
 pub mod species;
 pub mod activation;
 pub mod tests;
+pub mod error;

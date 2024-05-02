@@ -1,6 +1,6 @@
 use slotmap::SlotMap;
 
-use super::node::{Node, NodeId};
+use super::{edge::Edge, error::{AnnError, Result}, node::{Node, NodeId, NodeType}};
 
 pub struct ANN {
     pub(super) species: u32,
@@ -47,8 +47,43 @@ impl ANN {
         self
     }
 
-    fn insert(&mut self, node: Node) -> NodeId {
-        self.nodes.insert(node)
+    pub(crate) fn insert(&mut self, node: Node) -> NodeId {
+        let res = self.nodes.insert(node);
+        self.inner.push(res);
+
+        res
     }
 
+    pub(crate) fn connect(&mut self, from: NodeId, to: NodeId) -> Result<()> {
+        //Ensure from and to both exist in Slotmap
+        self.get(to)?;
+
+        if self.get(from)?.ty == NodeType::Output {
+            Err(AnnError::InvalidConnectionError(self.get(from)?.clone(), self.get(to)?.clone()))
+        } else if from == to {
+            Err(AnnError::RecursiveConnectionError(self.get(to)?.clone()))
+        } else {
+            let from_node = self.get_mut(from)?;
+
+            let new_edge = Edge::new(from, to);
+
+            from_node.edges.push(new_edge);
+
+            Ok(())
+        }
+    }
+    
+    fn get(&self, id: NodeId) -> Result<&Node> {
+        match self.nodes.get(id) {
+            Some(node) => Ok(node),
+            None => Err(AnnError::InvalidNodeIDError)            
+        }
+    }
+    
+    fn get_mut(&mut self, id: NodeId) -> Result<&mut Node> {
+        match self.nodes.get_mut(id) {
+            Some(node) => Ok(node),
+            None => Err(AnnError::InvalidNodeIDError)            
+        }
+    }
 }

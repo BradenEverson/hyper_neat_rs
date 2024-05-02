@@ -1,21 +1,54 @@
+use std::fmt::Display;
+
 use slotmap::new_key_type;
 
 use super::{activation::Activation, edge::Edge};
 
+#[derive(Debug, Clone)]
 pub struct Node {
-    activation: Option<Activation>,
-    edges: Vec<Edge>
+    pub(crate) ty: NodeType,
+    pub(crate) activation: Option<Activation>,
+    pub(crate) edges: Vec<Edge>
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum NodeType {
+    Input,
+    Output,
+    Inner
+}
+
+impl NodeType {
+    pub fn to_string(&self) -> String {
+        match self {
+            Self::Input => "Input",
+            Self::Inner => "Inner",
+            Self::Output => "Output"
+        }.into()
+    }
+}
+
+impl Display for Node {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({} Node with {} edges)", self.ty.to_string(), self.edges.len())
+    }
 }
 
 impl Default for Node {
     fn default() -> Self {
-        Self::empty()
+        Self::inner()
     }
 }
 
 impl Node {
-    pub fn empty() -> Self {
-        Node { activation: None, edges: vec![] }
+    pub fn inner() -> Self {
+        Node { activation: None, edges: vec![], ty: NodeType::Inner }
+    }
+    pub fn input() -> Self {
+        Node { activation: None, edges: vec![], ty: NodeType::Input }
+    }
+    pub fn output() -> Self {
+        Node { activation: None, edges: vec![], ty: NodeType::Output }
     }
 }
 
