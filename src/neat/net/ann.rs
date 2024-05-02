@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, LinkedList};
 
 use slotmap::SlotMap;
 
@@ -51,18 +51,18 @@ impl ANN {
 
     pub fn forward<F: Copy + Into<f32>>(&self, inputs: &[F]) -> Result<Vec<f32>> {
         let mut node_vals: HashMap<&NodeId, f32> = HashMap::new();
-        let mut to_visit: Vec<&NodeId> = vec![];
+        let mut to_visit: LinkedList<&NodeId> = LinkedList::new();
         let mut visited: HashSet<&NodeId> = HashSet::new();
 
         if inputs.len() != self.inputs.len() {
             Err(AnnError::MismatchedInputSizeError(inputs.len(), self.inputs.len()))
         } else {
             for i in 0..inputs.len() {
-                to_visit.push(&self.inputs[i]);
+                to_visit.push_front(&self.inputs[i]);
                 node_vals.insert(&self.inputs[i], inputs[i].into());
             }
 
-            while let Some(node) = to_visit.pop() {
+            while let Some(node) = to_visit.pop_back() {
                 if !visited.contains(node) {                
                     for edge in self.get(*node).unwrap().edges.iter() {
 
@@ -78,7 +78,7 @@ impl ANN {
                             node_vals.insert(&edge.to, node_val * edge.weight);
                         }
 
-                        to_visit.push(&edge.to);
+                        to_visit.push_front(&edge.to);
                     }
                     visited.insert(node);
                 }
