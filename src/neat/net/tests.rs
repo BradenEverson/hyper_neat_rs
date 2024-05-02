@@ -44,6 +44,38 @@ mod tests {
     }
 
     #[test]
+    fn test_forward_with_hidden() {
+        let mut ann = ANN::new()
+            .with_inputs(2)
+            .and_outputs(1);
+
+        let middle = Node::inner();
+
+        let middle_node = ann.insert(middle);
+
+        let input1 = ann.inputs[0].clone();
+        let input2 = ann.inputs[1].clone();
+
+        let output = ann.outputs[0].clone();
+
+        ann.connect(input1, middle_node).unwrap();
+        ann.connect(input2, middle_node).unwrap();
+
+        ann.connect(middle_node, output).unwrap();
+        ann.connect(input2, output).unwrap();
+
+        //ANN Structure -> (1) (2)
+        //                  \  / |
+        //                  (h)  |
+        //                    \ /
+        //                    (O) essentially (1+2) + 2 because weights are 1 for now
+        let fwrd = ann.forward(&[4u8,5u8]).unwrap();
+        assert_eq!(fwrd[0], 14f32);
+
+
+    }
+
+    #[test]
     fn force_efficiency() {
         let mut ann = ANN::new()
             .with_inputs(2)
