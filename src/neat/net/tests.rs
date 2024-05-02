@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::neat::ann::{ann::ANN, node::Node};
+    use crate::neat::net::{ann::ANN, node::Node};
 
     #[test]
     fn ensure_add() {
