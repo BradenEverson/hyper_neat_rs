@@ -61,7 +61,7 @@ mod tests {
         let _ = ann.forward(&[1u8, 2u8]).unwrap();
         let elapsed = Instant::now().duration_since(start);
 
-        assert!(elapsed.as_millis() < 2)
+        assert!(elapsed.as_millis() <= 1)
     }
 
     #[test]
