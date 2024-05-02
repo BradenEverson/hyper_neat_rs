@@ -23,6 +23,25 @@ mod tests {
     }
 
     #[test]
+    fn test_simple_forward() {
+        let mut ann = ANN::new()
+            .with_inputs(2)
+            .and_outputs(1);
+
+        let inputs = ann.inputs.clone();
+        let outputs = ann.outputs.clone();
+
+        for input in inputs.iter() {
+            for output in outputs.iter() {
+                ann.connect(*input, *output).unwrap();
+            }
+        }
+        let fwrd = ann.forward(&[1u8, 2u8]).unwrap();
+
+        assert_eq!(fwrd[0], 3f32)
+    }
+
+    #[test]
     fn ensure_add() {
         let ann = ANN::new()
             .with_inputs(3)

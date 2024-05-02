@@ -66,7 +66,11 @@ impl ANN {
                 if !visited.contains(node) {                
                     for edge in self.get(*node).unwrap().edges.iter() {
 
-                        let node_val = node_vals.get(node).unwrap_or(&0f32).clone();
+                        let mut node_val = node_vals.get(node).unwrap_or(&0f32).clone();
+
+                        if let Some(act) = &self.get(*node).unwrap().activation {
+                            node_val = act.apply(node_val)
+                        }
 
                         if let Some(val) = node_vals.get_mut(&edge.to) {
                             *val += node_val * edge.weight;
@@ -106,7 +110,7 @@ impl ANN {
         } else {
             let from_node = self.get_mut(from)?;
 
-            let new_edge = Edge::new(from, to);
+            let new_edge = Edge::new(to);
 
             from_node.edges.push(new_edge);
 
