@@ -3,6 +3,26 @@ mod tests {
     use crate::neat::net::{activation::Activation, ann::ANN, node::Node};
 
     #[test]
+    fn test_forward_no_connections() {
+        let ann = ANN::new()
+            .with_inputs(2)
+            .and_outputs(1);
+
+        assert_eq!(ann.forward(&[1f32,0.5]).unwrap().len(), 1);
+        assert_eq!(ann.forward(&[1f32,0.5]).unwrap()[0], 0f32);
+    }
+
+    #[test]
+    fn test_mismatched_inputs_err() {
+        let ann = ANN::new()
+            .with_inputs(3)
+            .and_outputs(4);
+        let forward = ann.forward(&[1i8]);
+
+        assert!(forward.is_err())
+    }
+
+    #[test]
     fn ensure_add() {
         let ann = ANN::new()
             .with_inputs(3)

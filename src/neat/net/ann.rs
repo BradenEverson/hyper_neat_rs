@@ -1,3 +1,5 @@
+use std::collections::{HashMap, HashSet};
+
 use slotmap::SlotMap;
 
 use super::{edge::Edge, error::{AnnError, Result}, node::{Node, NodeId, NodeType}};
@@ -47,12 +49,55 @@ impl ANN {
         self
     }
 
+
+    pub fn forward<F: Copy + Into<f32>>(&self, inputs: &[F]) -> Result<Vec<f32>> {
+        let mut node_vals: HashMap<&NodeId, f32> = HashMap::new();
+        let mut to_visit: Vec<&NodeId> = vec![];
+        let mut visited: HashSet<&NodeId> = HashSet::new();
+
+        if inputs.len() != self.inputs.len() {
+            Err(AnnError::MismatchedInputSizeError(inputs.len(), self.inner.len()))
+        } else {
+            for i in 0..inputs.len() {
+                to_visit.push(&self.inputs[i]);
+                node_vals.insert(&self.inputs[i], inputs[i].into());
+            }
+
+            while let Some(node) = to_visit.pop() {
+                if !visited.contains(node) {                
+                    for edge in self.get(*node).unwrap().edges.iter() {
+
+                        let node_val = node_vals.get(node).unwrap_or(&0f32).clone();
+
+                        if let Some(val) = node_vals.get_mut(&edge.to) {
+                            *val += node_val * edge.weight;
+                        } else {
+                            node_vals.insert(&edge.to, node_val * edge.weight);
+                        }
+
+                        to_visit.push(&edge.to);
+                    }
+                    visited.insert(node);
+                }
+            }
+
+            let mut res = vec![];
+
+            for output in self.outputs.iter() {
+                res.push(*node_vals.get(output).unwrap_or(&0f32));
+            }
+
+            Ok(res)
+        }
+    }
+
     pub(crate) fn insert(&mut self, node: Node) -> NodeId {
         let res = self.nodes.insert(node);
         self.inner.push(res);
 
         res
     }
+
 
     pub(crate) fn connect(&mut self, from: NodeId, to: NodeId) -> Result<()> {
         //Ensure from and to both exist in Slotmap

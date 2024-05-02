@@ -8,7 +8,9 @@ pub enum AnnError {
     #[error("{0} cannot be connected to itself")]
     RecursiveConnectionError(Node),
     #[error("Node does not exist in ANN")]
-    InvalidNodeIDError
+    InvalidNodeIDError,
+    #[error("Inputs provided do not match number of input nodes ({0} vs {1})")]
+    MismatchedInputSizeError(usize, usize)
 }
 
 pub type Result<T> = std::result::Result<T, AnnError>;
