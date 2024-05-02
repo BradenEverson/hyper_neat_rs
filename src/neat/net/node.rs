@@ -50,6 +50,11 @@ impl Node {
     pub fn output() -> Self {
         Node { activation: None, edges: vec![], ty: NodeType::Output }
     }
+
+    pub fn with_activation(mut self, activation: Activation) -> Self {
+        self.activation = Some(activation);
+        self
+    }
 }
 
 new_key_type! {

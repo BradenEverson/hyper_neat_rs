@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::neat::net::{ann::ANN, node::Node};
+    use crate::neat::net::{activation::Activation, ann::ANN, node::Node};
 
     #[test]
     fn ensure_add() {
@@ -44,5 +44,16 @@ mod tests {
         let result = ann.connect(out_id, in_id);
 
         assert!(result.is_err())
+    }
+
+    #[test]
+    fn test_relu() {
+        let in1 = -1f32;
+        let in2 = 4f32;
+
+        let activation = Activation::RELU;
+
+        assert_eq!(activation.apply(in1), 0f32);
+        assert_eq!(activation.apply(in2), 4f32);
     }
 }
