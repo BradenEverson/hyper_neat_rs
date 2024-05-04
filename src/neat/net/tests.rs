@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::neat::net::{activation::Activation, ann::ANN, node::Node};
+    use crate::neat::net::{activation::Activation, ann::ANN, initializer::Initializer, node::Node};
 
     #[test]
     fn test_forward_no_connections() {
@@ -20,6 +20,29 @@ mod tests {
         let forward = ann.forward(&[1i8]);
 
         assert!(forward.is_err())
+    }
+
+    #[test]
+    fn test_random_initialization() {
+        let mut ann = ANN::new()
+            .with_inputs(2)
+            .and_outputs(1);
+
+        let inputs = ann.inputs.clone();
+        let outputs = ann.outputs.clone();
+
+        for input in inputs.iter() {
+            for output in outputs.iter() {
+                ann.connect(*input, *output).unwrap();
+            }
+        }
+
+        ann.init(Initializer::Uniform);
+
+        let fwrd = ann.forward(&[1u8, 10u8]).unwrap();
+
+        //Reasonableish bounds
+        assert!(fwrd[0].abs() < 40f32)
     }
 
     #[test]
