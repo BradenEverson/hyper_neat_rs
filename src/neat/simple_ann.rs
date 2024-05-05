@@ -20,7 +20,15 @@ impl From<ANN> for SimpleANN {
         let mut nodes = vec![];
         let mut edges = vec![];
 
-        for (i, node) in value.inputs().iter().enumerate() {
+        for (i, node) in inputs.iter().enumerate() {
+            nodes.push(i as u8);
+            node_mappings.insert(node, i);
+        }
+        for (i, node) in inner.iter().enumerate() {
+            nodes.push(i as u8);
+            node_mappings.insert(node, i);
+        }
+        for (i, node) in outputs.iter().enumerate() {
             nodes.push(i as u8);
             node_mappings.insert(node, i);
         }
