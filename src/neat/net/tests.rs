@@ -37,7 +37,7 @@ mod tests {
             }
         }
 
-        ann.init(Initializer::Uniform);
+        ann.init(&Initializer::Uniform);
 
         let fwrd = ann.forward(&[1u8, 10u8]).unwrap();
 

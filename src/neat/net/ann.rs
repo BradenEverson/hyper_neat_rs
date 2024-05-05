@@ -55,6 +55,23 @@ impl ANN {
         self
     }
 
+    pub fn edges(&self) -> Vec<Edge> {
+        let mut res = vec![];
+        for edge in self.nodes.iter().flat_map(|f| f.1.edges.clone()) {
+            res.push(edge)
+        }
+
+        res
+    }
+    pub fn nodes(&self) -> Vec<NodeId> {
+        let mut res = vec![];
+        for node in self.nodes.iter() {
+            res.push(node.0)
+        }
+
+        res
+    }
+
 
     pub fn forward<F: Copy + Into<f32>>(&self, inputs: &[F]) -> Result<Vec<f32>> {
         let mut node_vals: HashMap<&NodeId, f32> = HashMap::new();
@@ -149,7 +166,7 @@ impl ANN {
         res
     }
 
-    pub fn init(&mut self, initializer: Initializer) {
+    pub fn init(&mut self, initializer: &Initializer) {
         let weights = initializer.gen_range(&self.seed, self.num_edges());
         let all_edges = self.nodes.iter_mut().flat_map(|(_,node)| &mut node.edges).collect::<Vec<&mut Edge>>();
 
