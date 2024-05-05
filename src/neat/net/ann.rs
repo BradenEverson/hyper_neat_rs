@@ -72,6 +72,18 @@ impl ANN {
         res
     }
 
+    pub fn inputs(&self) -> &[NodeId] {
+        &self.inputs
+    }
+    pub fn outputs(&self) -> &[NodeId] {
+        &self.outputs
+    }
+    pub fn inner(&self) -> Vec<NodeId> {
+        self.nodes.iter()
+            .filter(|(nodeid, _)| !self.inputs.contains(nodeid) && !self.outputs.contains(nodeid))
+            .map(|node| node.0).collect::<Vec<_>>()
+    }
+
 
     pub fn forward<F: Copy + Into<f32>>(&self, inputs: &[F]) -> Result<Vec<f32>> {
         let mut node_vals: HashMap<&NodeId, f32> = HashMap::new();
@@ -134,7 +146,7 @@ impl ANN {
         } else {
             let from_node = self.get_mut(from)?;
 
-            let new_edge = Edge::new(to);
+            let new_edge = Edge::new(to, from);
 
             from_node.edges.push(new_edge);
 

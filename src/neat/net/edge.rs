@@ -4,12 +4,14 @@ use super::node::NodeId;
 pub struct Edge {
     pub(crate) weight: f32,
     pub(crate) to: NodeId,
+    pub(crate) from: NodeId,
 }
 
 impl Edge {
-    pub fn new(to: NodeId) -> Self {
+    pub fn new(to: NodeId, from: NodeId) -> Self {
         Edge {
             to,
+            from,
             weight: 1f32
         }
     }
