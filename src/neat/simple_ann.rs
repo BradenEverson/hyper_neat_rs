@@ -46,6 +46,17 @@ impl From<ANN> for SimpleANN {
     }
 }
 
+impl Into<ANN> for SimpleANN {
+    fn into(self) -> ANN {
+        let inputs = self.dims[0];
+        let outputs = self.dims[self.dims.len() - 1];
+
+        ANN::new()
+            .with_inputs(inputs as usize)
+            .and_outputs(outputs as usize)
+    }
+}
+
 impl SimpleANN {
     pub fn new(dims: &[u8], nodes: &[u8], edges: &[(u8, u8, f32)]) -> Self {
         SimpleANN { dims: dims.into(), nodes: nodes.into(), edges: edges.into() }
