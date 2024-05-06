@@ -5,6 +5,7 @@ use super::net::{ann::ANN, error::{AnnError, Result}};
 pub struct SimpleANN {
     dims: Vec<usize>,
     nodes: Vec<usize>,
+    //From, To, Weight
     edges: Vec<(usize, usize, f32)>
 }
 
@@ -55,7 +56,24 @@ impl SimpleANN {
         if inputs.len() != self.dims[0] {
             Err(AnnError::MismatchedInputSizeError(inputs.len(), self.dims[0]))
         } else {
-            Ok(vec![])
+            let mut state_table: HashMap<usize, f32> = HashMap::new();
+            let mut res = vec![];
+
+            for (from, to, weight) in self.edges.iter() {
+                if let Some(val) = state_table.get(from) {
+                    let prev = state_table.get(to).unwrap_or(&0f32);
+                    state_table.insert(*to, prev + (val * weight));
+                } else {
+                    return Err(AnnError::UninitializedNodeVisitError);
+                }
+                
+            }
+
+            for i in self.nodes.len() - self.dims[self.dims.len()]..self.nodes.len() {
+                res.push(*state_table.get(&i).unwrap_or(&0f32))
+            }
+
+            Ok(res)
         }
     }
 
