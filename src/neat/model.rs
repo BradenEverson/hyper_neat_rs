@@ -1,10 +1,10 @@
 use crate::neat::net::{ann::ANN, edge::Edge, node::NodeId};
 
-use super::{error::{NeatError, Result}, fitness::Fitness, net::initializer::Initializer};
+use super::{error::{NeatError, Result}, fitness::Fitness, net::initializer::Initializer, simple_ann::SimpleANN};
 
-pub struct Population {
+pub struct Population<K: Into<SimpleANN>> {
     generation: Vec<NeatNet>,
-    fitness: Box<dyn Fn(ANN, &[f32]) -> f32>,
+    fitness: Box<dyn Fn(K, &[f32]) -> f32>,
     max_species: u32,
     population_size: u64,
 
@@ -18,7 +18,7 @@ pub struct Population {
     outputs: usize
 }
 
-impl Default for Population {
+impl<K: Into<SimpleANN>> Default for Population<K> {
     fn default() -> Self {
         Population::new()
             .with_inputs_and_outputs(2, 1)
@@ -31,7 +31,7 @@ impl Default for Population {
     }
 }
 
-impl Population {
+impl<K: Into<SimpleANN>> Population<K> {
     pub fn new() -> Self {
         Population { generation: vec![],
             fitness: Fitness::default(), 
