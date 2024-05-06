@@ -69,7 +69,7 @@ impl SimpleANN {
                 
             }
 
-            for i in self.nodes.len() - self.dims[self.dims.len()]..self.nodes.len() {
+            for i in (self.nodes.len() - self.dims[self.dims.len() - 1])..self.nodes.len() {
                 res.push(*state_table.get(&i).unwrap_or(&0f32))
             }
 
