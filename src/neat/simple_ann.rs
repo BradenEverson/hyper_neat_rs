@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use super::net::{ann::ANN, error::Result};
+use super::net::{ann::ANN, error::{AnnError, Result}};
 
 pub struct SimpleANN {
-    dims: Vec<u8>,
-    nodes: Vec<u8>,
-    edges: Vec<(u8, u8, f32)>
+    dims: Vec<usize>,
+    nodes: Vec<usize>,
+    edges: Vec<(usize, usize, f32)>
 }
 
 impl From<ANN> for SimpleANN {
@@ -16,20 +16,20 @@ impl From<ANN> for SimpleANN {
         let outputs = value.outputs();
         let inner = value.inner();
 
-        let dims = vec![inputs.len() as u8, inner.len() as u8, outputs.len() as u8];
+        let dims = vec![inputs.len(), inner.len(), outputs.len()];
         let mut nodes = vec![];
         let mut edges = vec![];
 
         for (i, node) in inputs.iter().enumerate() {
-            nodes.push(i as u8);
+            nodes.push(i);
             node_mappings.insert(node, i);
         }
         for (i, node) in inner.iter().enumerate() {
-            nodes.push(i as u8);
+            nodes.push(i);
             node_mappings.insert(node, i);
         }
         for (i, node) in outputs.iter().enumerate() {
-            nodes.push(i as u8);
+            nodes.push(i);
             node_mappings.insert(node, i);
         }
 
@@ -39,7 +39,7 @@ impl From<ANN> for SimpleANN {
 
             let weight = edge.weight;
 
-            edges.push((from as u8, to as u8, weight));
+            edges.push((from, to, weight));
         }
 
         SimpleANN::new(&dims, &nodes, &edges)
@@ -47,13 +47,16 @@ impl From<ANN> for SimpleANN {
 }
 
 impl SimpleANN {
-    pub fn new(dims: &[u8], nodes: &[u8], edges: &[(u8, u8, f32)]) -> Self {
+    pub fn new(dims: &[usize], nodes: &[usize], edges: &[(usize, usize, f32)]) -> Self {
         SimpleANN { dims: dims.into(), nodes: nodes.into(), edges: edges.into() }
     }
 
     pub fn forward(&self, inputs: &[f32]) -> Result<Vec<f32>> {
-
-        Ok(vec![])
+        if inputs.len() != self.dims[0] {
+            Err(AnnError::MismatchedInputSizeError(inputs.len(), self.dims[0]))
+        } else {
+            Ok(vec![])
+        }
     }
 
 }
