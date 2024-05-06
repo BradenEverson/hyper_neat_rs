@@ -4,11 +4,12 @@ use slotmap::SlotMap;
 
 use super::{edge::Edge, error::{AnnError, Result}, initializer::Initializer, node::{Node, NodeId, NodeType}};
 
+#[derive(Clone)]
 pub struct ANN {
-    pub(super) species: u32,
-    pub(super) nodes: SlotMap<NodeId, Node>,
-    pub(super) inputs: Vec<NodeId>,
-    pub(super) outputs: Vec<NodeId>,
+    pub(crate) species: u32,
+    pub(crate) nodes: SlotMap<NodeId, Node>,
+    pub(crate) inputs: Vec<NodeId>,
+    pub(crate) outputs: Vec<NodeId>,
 
     seed: Option<String>
 }

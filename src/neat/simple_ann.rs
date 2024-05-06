@@ -52,7 +52,7 @@ impl SimpleANN {
         SimpleANN { dims: dims.into(), nodes: nodes.into(), edges: edges.into() }
     }
 
-    pub fn forward(&self, inputs: &[f32]) -> Result<Vec<f32>> {
+    pub fn forward<F: Into<f32>>(&self, inputs: &[F]) -> Result<Vec<f32>> {
         if inputs.len() != self.dims[0] {
             Err(AnnError::MismatchedInputSizeError(inputs.len(), self.dims[0]))
         } else {
