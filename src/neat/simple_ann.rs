@@ -56,7 +56,7 @@ impl SimpleANN {
         if inputs.len() != self.dims[0] {
             Err(AnnError::MismatchedInputSizeError(inputs.len(), self.dims[0]))
         } else {
-            let mut state_table: HashMap<usize, f32> = HashMap::new();
+            let mut state_table = vec![f32::NAN; self.nodes.len()];
             let mut res = vec![];
 
             for (node, i) in inputs.iter().enumerate() {
@@ -64,9 +64,9 @@ impl SimpleANN {
             }
 
             for (from, to, weight) in self.edges.iter() {
-                if let Some(val) = state_table.get(from) {
-                    let prev = state_table.get(to).unwrap_or(&0f32);
-                    state_table.insert(*to, prev + (val * weight));
+                if !state_table[*from].is_nan() {
+                    let prev = state_table[*to];
+                    state_table.insert(*to, prev + (state_table[*from] * weight));
                 } else {
                     println!("Error at {} to {}", from, to);
                     return Err(AnnError::UninitializedNodeVisitError);
@@ -75,7 +75,7 @@ impl SimpleANN {
             }
 
             for i in (self.nodes.len() - self.dims[self.dims.len() - 1])..self.nodes.len() {
-                res.push(*state_table.get(&i).unwrap_or(&0f32))
+                res.push(state_table[i]);
             }
 
             Ok(res)

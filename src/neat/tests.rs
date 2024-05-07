@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use std::time::Instant;
+    use std::{f32::NAN, time::Instant};
 
     use crate::neat::{net::{ann::ANN, initializer::Initializer}, simple_ann::SimpleANN};
 
@@ -11,7 +11,7 @@ mod tests {
             .and_outputs(1).into();
 
         assert_eq!(ann.forward(&[1f32,0.5]).unwrap().len(), 1);
-        assert_eq!(ann.forward(&[1f32,0.5]).unwrap()[0], 0f32);
+        assert!(ann.forward(&[1f32,0.5]).unwrap()[0].is_nan());
     }
 
     #[test]
@@ -21,7 +21,6 @@ mod tests {
             .with_inputs(100)
             .and_outputs(10);
 
-        //TODO: Adding connections doesn't happen in the right order for SimpleANN, nodenotfound error returned
         let inputs = ann.inputs.clone();
         let outputs = ann.outputs.clone();
 
@@ -46,5 +45,6 @@ mod tests {
         let end_simple = Instant::now().duration_since(start_simple);
 
         assert!(time_norm.cmp(&end_simple).is_gt());
+        //assert_eq!(time_norm.as_micros(), end_simple.as_micros())
     }
 }
