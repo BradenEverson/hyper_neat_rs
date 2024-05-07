@@ -26,12 +26,12 @@ impl From<ANN> for SimpleANN {
             node_mappings.insert(node, i);
         }
         for (i, node) in inner.iter().enumerate() {
-            nodes.push(i);
-            node_mappings.insert(node, i);
+            nodes.push(i + dims[0]);
+            node_mappings.insert(node, i + dims[0]);
         }
         for (i, node) in outputs.iter().enumerate() {
-            nodes.push(i);
-            node_mappings.insert(node, i);
+            nodes.push(i + dims[0] + inner.len());
+            node_mappings.insert(node, i + dims[0] + inner.len());
         }
 
         for edge in value.edges() {
@@ -52,18 +52,23 @@ impl SimpleANN {
         SimpleANN { dims: dims.into(), nodes: nodes.into(), edges: edges.into() }
     }
 
-    pub fn forward<F: Into<f32>>(&self, inputs: &[F]) -> Result<Vec<f32>> {
+    pub fn forward<F: Into<f32> + Copy>(&self, inputs: &[F]) -> Result<Vec<f32>> {
         if inputs.len() != self.dims[0] {
             Err(AnnError::MismatchedInputSizeError(inputs.len(), self.dims[0]))
         } else {
             let mut state_table: HashMap<usize, f32> = HashMap::new();
             let mut res = vec![];
 
+            for (node, i) in inputs.iter().enumerate() {
+                state_table.insert(node, (*i).into());
+            }
+
             for (from, to, weight) in self.edges.iter() {
                 if let Some(val) = state_table.get(from) {
                     let prev = state_table.get(to).unwrap_or(&0f32);
                     state_table.insert(*to, prev + (val * weight));
                 } else {
+                    println!("Error at {} to {}", from, to);
                     return Err(AnnError::UninitializedNodeVisitError);
                 }
                 

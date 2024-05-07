@@ -22,14 +22,14 @@ mod tests {
             .and_outputs(10);
 
         //TODO: Adding connections doesn't happen in the right order for SimpleANN, nodenotfound error returned
-        //let inputs = ann.inputs.clone();
-        //let outputs = ann.outputs.clone();
+        let inputs = ann.inputs.clone();
+        let outputs = ann.outputs.clone();
 
-        /*for input in inputs.iter() {
+        for input in inputs.iter() {
             for output in outputs.iter() {
                 ann.connect(*input, *output).unwrap();
             }
-        }*/
+        }
 
         ann.init(&Initializer::Uniform);
 
