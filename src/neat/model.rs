@@ -85,13 +85,13 @@ impl<K: Into<SimpleANN>> Population<K> {
         self
     }
 
-    pub fn assess_fitness(&self, inputs: &[f32]) -> Vec<f32> {
+    /*pub fn assess_fitness(&self, inputs: &[f32]) -> Vec<f32> {
         let mut res = vec![];
         for elem in self.generation {
             res.push((self.fitness)(elem, inputs))
         }
         res
-    }
+    }*/
 
     pub fn init(&mut self) {
         for _ in 0..self.population_size {
