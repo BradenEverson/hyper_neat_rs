@@ -3,7 +3,7 @@ use crate::neat::net::{ann::ANN, edge::Edge, node::NodeId};
 use super::{error::{NeatError, Result}, fitness::Fitness, net::initializer::Initializer, simple_ann::SimpleANN};
 
 pub struct Population<K: Into<SimpleANN>> {
-    generation: Vec<NeatNet>,
+    generation: Vec<SimpleANN>,
     fitness: Box<dyn Fn(K, &[f32]) -> f32>,
     max_species: u32,
     population_size: u64,
@@ -85,58 +85,19 @@ impl<K: Into<SimpleANN>> Population<K> {
         self
     }
 
+    pub fn assess_fitness(&self, inputs: &[f32]) -> Vec<f32> {
+        let mut res = vec![];
+        for elem in self.generation {
+            res.push((self.fitness)(elem, inputs))
+        }
+        res
+    }
+
     pub fn init(&mut self) {
         for _ in 0..self.population_size {
-            self.generation.push(NeatNet::new(self.inputs, self.outputs, &self.initializer))
-        }
-
-    }
-
-}
-
-pub struct NeatNet {
-    genome: ANN,
-    nodes: Vec<NodeId>,
-    edges: Vec<Edge>
-}
-
-impl Default for NeatNet {
-    fn default() -> Self {
-        NeatNet::empty()
-    }
-}
-
-impl NeatNet {
-    pub fn empty() -> Self {
-        NeatNet { genome: ANN::new(), nodes: vec![], edges: vec![] }
-    }
-    
-    pub fn new(inputs: usize, outputs: usize, init: &Initializer) -> Self {
-        let mut genome = ANN::new()
-            .with_inputs(inputs)
-            .and_outputs(outputs);
-        genome.init(init);
-
-        let nodes = genome.nodes();
-        let edges = genome.edges();
-
-        NeatNet { genome, nodes, edges }
-    }
-
-    pub fn mutate(&mut self, mutation: MutationType) {
-
-    }
-
-    fn get_species(&self) -> u32 {
-        self.genome.species_num()
-    }
-
-    pub fn cross_breed(&mut self, partner: &mut NeatNet) -> Result<NeatNet> {
-        if self.get_species() != partner.get_species() {
-            Err(NeatError::IncompatibleSpeciesBreedError)
-        } else {
-            todo!();
-            Ok(NeatNet::default())
+            let mut temp_ann = ANN::new().with_inputs(self.inputs).and_outputs(self.outputs);
+            temp_ann.init(&self.initializer);
+            self.generation.push(temp_ann.into());
         }
     }
 
@@ -144,7 +105,6 @@ impl NeatNet {
 
 pub enum MutationType {
     NewNode,
-    KillNode,
     NewConnection,
     KillConnection
 }
