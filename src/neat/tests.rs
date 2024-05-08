@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use std::{f32::NAN, time::Instant};
+    use std::time::Instant;
 
     use crate::neat::{net::{ann::ANN, initializer::Initializer}, simple_ann::SimpleANN};
 

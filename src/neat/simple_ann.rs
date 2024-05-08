@@ -1,12 +1,31 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display};
 
 use super::net::{ann::ANN, error::{AnnError, Result}};
 
+#[derive(Clone)]
 pub struct SimpleANN {
-    dims: Vec<usize>,
-    nodes: Vec<usize>,
+    pub(crate)dims: Vec<usize>,
+    pub(crate)nodes: Vec<usize>,
     //From, To, Weight
-    edges: Vec<(usize, usize, f32)>
+    pub(crate)edges: Vec<(usize, usize, f32)>
+}
+
+impl Display for SimpleANN {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for i in 0..self.dims.len() {
+            write!(f, "\n----Layer #{}----\n", i)?;
+            let lower = match i {
+                0 => 0,
+                _ => self.dims[i-1]
+            };
+            let upper = self.dims[i] + lower;
+            for (from, to, weight) in self.edges.iter()
+            .filter(|(from, _, _)| *from < upper && *from >= lower) {
+                write!(f,"Node {} --({:.2})--> Node {}\n", from, weight, to)?;
+            }
+        }
+        Ok(())
+    }
 }
 
 impl From<ANN> for SimpleANN {

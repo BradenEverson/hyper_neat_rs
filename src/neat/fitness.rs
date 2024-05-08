@@ -1,9 +1,9 @@
-use super::{net::ann::ANN, simple_ann::SimpleANN};
+use super::simple_ann::SimpleANN;
 
 pub struct Fitness;
 
 impl Fitness {
-    pub fn default<K: Into<SimpleANN>>() -> Box<dyn Fn(K, &[f32]) -> f32> {
-        Box::new(|net, inputs| net.into().forward(inputs).unwrap().iter().sum())
+    pub fn default() -> Box<dyn Fn(&SimpleANN, &[f32]) -> f32> {
+        Box::new(|net, inputs| net.forward(inputs).unwrap().iter().sum())
     }
 }

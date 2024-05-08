@@ -1,12 +1,13 @@
-use crate::neat::net::{ann::ANN, edge::Edge, node::NodeId};
+use crate::neat::net::ann::ANN;
 
-use super::{error::{NeatError, Result}, fitness::Fitness, net::initializer::Initializer, simple_ann::SimpleANN};
+use super::{ fitness::Fitness, net::{initializer::Initializer, error::{Result, AnnError}}, simple_ann::SimpleANN};
 
-pub struct Population<K: Into<SimpleANN>> {
+pub struct Population {
     generation: Vec<SimpleANN>,
-    fitness: Box<dyn Fn(K, &[f32]) -> f32>,
-    max_species: u32,
-    population_size: u64,
+    fitness: Box<dyn Fn(&SimpleANN, &[f32]) -> f32>,
+    max_species: usize,
+    population_size: usize,
+    survivor_percentage: f32,
 
     node_add_rate: f32,
     node_rem_rate: f32,
@@ -15,10 +16,11 @@ pub struct Population<K: Into<SimpleANN>> {
     initializer: Initializer,
 
     inputs: usize,
-    outputs: usize
+    outputs: usize,
+    dbg: bool
 }
 
-impl<K: Into<SimpleANN>> Default for Population<K> {
+impl Default for Population {
     fn default() -> Self {
         Population::new()
             .with_inputs_and_outputs(2, 1)
@@ -27,13 +29,15 @@ impl<K: Into<SimpleANN>> Default for Population<K> {
             
             .with_connect_rate(0.05)
             .with_disconnect_rate(0.05)
+            .top_n_percent_survive(0.1)
             .population_size(100)
     }
 }
 
-impl<K: Into<SimpleANN>> Population<K> {
+impl Population {
     pub fn new() -> Self {
-        Population { generation: vec![],
+        Population { 
+            generation: vec![],
             fitness: Fitness::default(), 
             node_add_rate: 0f32,
             node_rem_rate: 0f32,
@@ -43,7 +47,9 @@ impl<K: Into<SimpleANN>> Population<K> {
             initializer: Initializer::Normal,
             outputs: 0,
             max_species: 0,
-            population_size: 0
+            population_size: 0,
+            survivor_percentage: 0f32,
+            dbg: false
         }
     }
     pub fn with_inputs_and_outputs(mut self, inputs: usize, outputs: usize) -> Self {
@@ -79,19 +85,21 @@ impl<K: Into<SimpleANN>> Population<K> {
 
         self
     }
-    pub fn population_size(mut self, pop: u64) -> Self {
+    pub fn population_size(mut self, pop: usize) -> Self {
         self.population_size = pop;
 
         self
     }
 
-    /*pub fn assess_fitness(&self, inputs: &[f32]) -> Vec<f32> {
-        let mut res = vec![];
-        for elem in self.generation {
-            res.push((self.fitness)(elem, inputs))
-        }
-        res
-    }*/
+    pub fn top_n_percent_survive(mut self, top: f32) -> Self {
+        self.survivor_percentage = top;
+
+        self
+    }
+
+    pub fn toggle_debug(&mut self) {
+        self.dbg = !self.dbg
+    }
 
     pub fn init(&mut self) {
         for _ in 0..self.population_size {
@@ -99,6 +107,42 @@ impl<K: Into<SimpleANN>> Population<K> {
             temp_ann.init(&self.initializer);
             self.generation.push(temp_ann.into());
         }
+    }
+
+    fn rank(&mut self, initial_inputs: &[f32]) -> Result<()> {
+        if initial_inputs.len() != self.inputs {
+            Err(AnnError::MismatchedInputSizeError(initial_inputs.len(), self.inputs))
+        } else {
+           //Sort list by fitness in descending order
+            self.generation.sort_by(|a, b| 
+                (self.fitness)(b, initial_inputs)
+                    .partial_cmp(&(self.fitness)(a, initial_inputs)).unwrap());
+            Ok(())
+        }
+    }
+
+    pub fn survival_of_the_fittest(&mut self) {
+        let lucky_few = (self.population_size as f32 * self.survivor_percentage).round() as usize;
+
+        self.generation = self.generation[0..lucky_few].to_vec();
+    }
+    
+    pub fn cross_breed(&mut self) {
+
+    }
+
+    pub fn evolve(&mut self, start_conditions: &[f32]) -> Result<()> {
+        self.rank(start_conditions)?;
+
+        if self.dbg {
+            println!("Fittest Genome: {}\nFitness: {}", self.generation[0], (self.fitness)(&self.generation[0], start_conditions));
+        }
+
+        self.survival_of_the_fittest();
+
+        self.cross_breed();
+
+        Ok(())
     }
 
 }
