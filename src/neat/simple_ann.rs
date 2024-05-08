@@ -20,12 +20,12 @@ impl Display for SimpleANN {
             let mut edged = vec![];
             for (from, to, weight) in self.edges.iter()
             .filter(|(from, _, _)| *from < curr_top && *from >= curr_prev) {
-                write!(f,"Node {} --({:.2})--> Node {}\n", from, weight, to)?;
+                writeln!(f,"Node {} --({:.2})--> Node {}", from, weight, to)?;
                 edged.push(*from);
             }
             for i in self.nodes.iter()
                 .filter(|node| !edged.contains(*node) && *node < &curr_top && *node >= &curr_prev) {
-                    write!(f, "Node {} -X-\n", i)?;
+                    writeln!(f, "Node {} -X-", i)?;
             }
             curr_prev += self.dims[i];
         }
@@ -102,8 +102,10 @@ impl SimpleANN {
             }
             println!("{:?}", state_table);
 
-            for i in (self.nodes.len() - self.dims[self.dims.len() - 1])..self.nodes.len() {
-                res.push(state_table[i]);
+            for elem in state_table.iter()
+                .take(self.nodes.len()).skip(self.nodes.len() - self.dims[self.dims.len() - 1]) {
+
+                res.push(*elem);
             }
 
             Ok(res)

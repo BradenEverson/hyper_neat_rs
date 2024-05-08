@@ -1,10 +1,10 @@
 use crate::neat::net::ann::ANN;
 
-use super::{ fitness::Fitness, net::{initializer::Initializer, error::{Result, AnnError}}, simple_ann::SimpleANN};
+use super::{ fitness::{Fitness, FitnessFn}, net::{error::{AnnError, Result}, initializer::Initializer}, simple_ann::SimpleANN};
 
 pub struct Population {
     generation: Vec<SimpleANN>,
-    fitness: Box<dyn Fn(&SimpleANN, &[f32]) -> f32>,
+    fitness: FitnessFn,
     population_size: usize,
     survivor_percentage: f32,
 
@@ -37,7 +37,7 @@ impl Population {
     pub fn new() -> Self {
         Population { 
             generation: vec![],
-            fitness: Fitness::default(), 
+            fitness: Fitness::placeholder(), 
             node_add_rate: 0f32,
             node_rem_rate: 0f32,
             connect_rate: 0f32,
