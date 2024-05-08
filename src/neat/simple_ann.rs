@@ -84,19 +84,23 @@ impl SimpleANN {
             let mut res = vec![];
 
             for (node, i) in inputs.iter().enumerate() {
-                state_table.insert(node, (*i).into());
+                state_table[node] = (*i).into();
             }
 
             for (from, to, weight) in self.edges.iter() {
                 if !state_table[*from].is_nan() {
-                    let prev = state_table[*to];
-                    state_table.insert(*to, prev + (state_table[*from] * weight));
+                    let prev = match state_table[*to].is_nan() {
+                        true => 0f32,
+                        false => state_table[*to]
+                    };
+                    state_table[*to] = prev + (state_table[*from] * weight);
                 } else {
                     println!("Error at {} to {}", from, to);
                     return Err(AnnError::UninitializedNodeVisitError);
                 }
                 
             }
+            println!("{:?}", state_table);
 
             for i in (self.nodes.len() - self.dims[self.dims.len() - 1])..self.nodes.len() {
                 res.push(state_table[i]);

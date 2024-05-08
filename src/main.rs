@@ -1,7 +1,5 @@
 use neater::neat::simple_ann::SimpleANN;
 
-
-
 fn main() {
     let ann = SimpleANN::new(
         &[3,2,1], 

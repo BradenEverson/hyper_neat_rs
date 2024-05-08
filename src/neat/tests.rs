@@ -47,4 +47,31 @@ mod tests {
         assert!(time_norm.cmp(&end_simple).is_gt());
         //assert_eq!(time_norm.as_micros(), end_simple.as_micros())
     }
+
+    #[test]
+    fn test_same_res_as_norm() {
+        let mut ann = ANN::new()
+            .with_inputs(100)
+            .and_outputs(10);
+
+        let inputs = ann.inputs.clone();
+        let outputs = ann.outputs.clone();
+
+        for input in inputs.iter() {
+            for output in outputs.iter() {
+                ann.connect(*input, *output).unwrap();
+            }
+        }
+
+        ann.init(&Initializer::Uniform);
+
+        let ann_simp: SimpleANN = ann.clone().into();
+
+        let input = [1u8; 100];
+
+        let ann_res = ann.forward(&input).unwrap();
+        let simp_ann_res = ann_simp.forward(&input).unwrap();
+
+        assert_eq!(ann_res, simp_ann_res)
+    }
 }
