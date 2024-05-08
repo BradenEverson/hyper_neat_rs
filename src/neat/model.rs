@@ -5,7 +5,6 @@ use super::{ fitness::Fitness, net::{initializer::Initializer, error::{Result, A
 pub struct Population {
     generation: Vec<SimpleANN>,
     fitness: Box<dyn Fn(&SimpleANN, &[f32]) -> f32>,
-    max_species: usize,
     population_size: usize,
     survivor_percentage: f32,
 
@@ -46,7 +45,6 @@ impl Population {
             inputs: 0, 
             initializer: Initializer::Normal,
             outputs: 0,
-            max_species: 0,
             population_size: 0,
             survivor_percentage: 0f32,
             dbg: false
