@@ -12,17 +12,22 @@ pub struct SimpleANN {
 
 impl Display for SimpleANN {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut curr_prev = 0;
+        let mut curr_top = 0;
         for i in 0..self.dims.len() {
             write!(f, "\n----Layer #{}----\n", i)?;
-            let lower = match i {
-                0 => 0,
-                _ => self.dims[i-1]
-            };
-            let upper = self.dims[i] + lower;
+            curr_top += self.dims[i];
+            let mut edged = vec![];
             for (from, to, weight) in self.edges.iter()
-            .filter(|(from, _, _)| *from < upper && *from >= lower) {
+            .filter(|(from, _, _)| *from < curr_top && *from >= curr_prev) {
                 write!(f,"Node {} --({:.2})--> Node {}\n", from, weight, to)?;
+                edged.push(*from);
             }
+            for i in self.nodes.iter()
+                .filter(|node| !edged.contains(*node) && *node < &curr_top && *node >= &curr_prev) {
+                    write!(f, "Node {} -X-\n", i)?;
+            }
+            curr_prev += self.dims[i];
         }
         Ok(())
     }
