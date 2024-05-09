@@ -7,7 +7,7 @@ pub struct SimpleANN {
     pub(crate)dims: Vec<usize>,
     pub(crate)nodes: Vec<usize>,
     //From, To, Weight
-    pub(crate)edges: Vec<(usize, usize, f32)>
+    pub(crate)edges: Vec<(usize, usize, usize, f32)>
 }
 
 impl Display for SimpleANN {
@@ -18,8 +18,8 @@ impl Display for SimpleANN {
             write!(f, "\n----Layer #{}----\n", i)?;
             curr_top += self.dims[i];
             let mut edged = vec![];
-            for (from, to, weight) in self.edges.iter()
-            .filter(|(from, _, _)| *from < curr_top && *from >= curr_prev) {
+            for (_, from, to, weight) in self.edges.iter()
+            .filter(|(_, from, _, _)| *from < curr_top && *from >= curr_prev) {
                 writeln!(f,"Node {} --({:.2})--> Node {}", from, weight, to)?;
                 edged.push(*from);
             }
@@ -58,13 +58,13 @@ impl From<ANN> for SimpleANN {
             node_mappings.insert(node, i + dims[0] + inner.len());
         }
 
-        for edge in value.edges() {
+        for (i, edge) in value.edges().iter().enumerate() {
             let from = node_mappings[&edge.from];
             let to = node_mappings[&edge.to];
 
             let weight = edge.weight;
 
-            edges.push((from, to, weight));
+            edges.push((i, from, to, weight));
         }
 
         SimpleANN::new(&dims, &nodes, &edges)
@@ -72,7 +72,7 @@ impl From<ANN> for SimpleANN {
 }
 
 impl SimpleANN {
-    pub fn new(dims: &[usize], nodes: &[usize], edges: &[(usize, usize, f32)]) -> Self {
+    pub fn new(dims: &[usize], nodes: &[usize], edges: &[(usize, usize, usize, f32)]) -> Self {
         SimpleANN { dims: dims.into(), nodes: nodes.into(), edges: edges.into() }
     }
 
@@ -87,7 +87,7 @@ impl SimpleANN {
                 state_table[node] = (*i).into();
             }
 
-            for (from, to, weight) in self.edges.iter() {
+            for (_, from, to, weight) in self.edges.iter() {
                 if !state_table[*from].is_nan() {
                     let prev = match state_table[*to].is_nan() {
                         true => 0f32,
