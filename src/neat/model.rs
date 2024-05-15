@@ -133,7 +133,7 @@ impl Population {
         self.rank(start_conditions)?;
 
         if self.dbg {
-            println!("Fittest Genome: {}\nFitness: {}", self.generation[0], (self.fitness)(&self.generation[0], start_conditions));
+            //println!("Fittest Genome: {}\nFitness: {}", self.generation[0], (self.fitness)(&self.generation[0], start_conditions));
         }
 
         self.survival_of_the_fittest();

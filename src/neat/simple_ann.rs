@@ -1,36 +1,13 @@
-use std::{collections::HashMap, fmt::Display};
+use std::{collections::HashMap};
 
-use super::net::{ann::ANN, error::{AnnError, Result}};
+use super::{net::{ann::ANN, error::{AnnError, Result}}, simple_edge::SimpleEdge};
 
 #[derive(Clone)]
 pub struct SimpleANN {
     pub(crate)dims: Vec<usize>,
     pub(crate)nodes: Vec<usize>,
     //From, To, Weight
-    pub(crate)edges: Vec<(usize, usize, usize, f32)>
-}
-
-impl Display for SimpleANN {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut curr_prev = 0;
-        let mut curr_top = 0;
-        for i in 0..self.dims.len() {
-            write!(f, "\n----Layer #{}----\n", i)?;
-            curr_top += self.dims[i];
-            let mut edged = vec![];
-            for (_, from, to, weight) in self.edges.iter()
-            .filter(|(_, from, _, _)| *from < curr_top && *from >= curr_prev) {
-                writeln!(f,"Node {} --({:.2})--> Node {}", from, weight, to)?;
-                edged.push(*from);
-            }
-            for i in self.nodes.iter()
-                .filter(|node| !edged.contains(*node) && *node < &curr_top && *node >= &curr_prev) {
-                    writeln!(f, "Node {} -X-", i)?;
-            }
-            curr_prev += self.dims[i];
-        }
-        Ok(())
-    }
+    pub(crate)edges: Vec<SimpleEdge>
 }
 
 impl From<ANN> for SimpleANN {
@@ -64,20 +41,27 @@ impl From<ANN> for SimpleANN {
 
             let weight = edge.weight;
 
-            edges.push((i, from, to, weight));
+            edges.push((from, to, weight).into());
         }
 
         SimpleANN::new(&dims, &nodes, &edges)
     }
 }
 
+
 impl SimpleANN {
-    pub fn new(dims: &[usize], nodes: &[usize], edges: &[(usize, usize, usize, f32)]) -> Self {
-        SimpleANN { dims: dims.into(), nodes: nodes.into(), edges: edges.into() }
+    pub fn new(dims: &[usize], nodes: &[usize], edges: &[(usize, usize, f32)]) -> Self {
+        let mut simple_edges: Vec<SimpleEdge> = vec![];
+
+        for edge in edges.iter() {
+            simple_edges.push(SimpleEdge::from(*edge))
+        }
+
+        SimpleANN { dims: dims.into(), nodes: nodes.into(), edges: simple_edges }
     }
 
-    pub fn insert(&mut self, edge: (usize, usize, usize, f32)) {
-
+    pub fn insert(&mut self, edge: (usize, usize, f32)) {
+        todo!();
     }
 
     pub fn forward<F: Into<f32> + Copy>(&self, inputs: &[F]) -> Result<Vec<f32>> {
@@ -91,13 +75,14 @@ impl SimpleANN {
                 state_table[node] = (*i).into();
             }
 
-            for (_, from, to, weight) in self.edges.iter() {
-                if !state_table[*from].is_nan() {
-                    let prev = match state_table[*to].is_nan() {
+            for edge in self.edges.iter() {
+                let (_, from, to, weight) = Into::<(usize, usize, usize, f32)>::into(*edge);
+                if !state_table[from].is_nan() {
+                    let prev = match state_table[to].is_nan() {
                         true => 0f32,
-                        false => state_table[*to]
+                        false => state_table[to]
                     };
-                    state_table[*to] = prev + (state_table[*from] * weight);
+                    state_table[to] = prev + (state_table[from] * weight);
                 } else {
                     println!("Error at {} to {}", from, to);
                     return Err(AnnError::UninitializedNodeVisitError);
