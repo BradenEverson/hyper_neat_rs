@@ -1,6 +1,6 @@
 
 #[derive(Clone, Copy)]
-pub(super) struct SimpleEdge {
+pub(crate) struct SimpleEdge {
     from: usize,
     to: usize,
     weight: f32,

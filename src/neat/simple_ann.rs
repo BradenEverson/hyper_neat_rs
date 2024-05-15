@@ -35,13 +35,13 @@ impl From<ANN> for SimpleANN {
             node_mappings.insert(node, i + dims[0] + inner.len());
         }
 
-        for (i, edge) in value.edges().iter().enumerate() {
+        for edge in value.edges().iter() {
             let from = node_mappings[&edge.from];
             let to = node_mappings[&edge.to];
 
             let weight = edge.weight;
 
-            edges.push((from, to, weight).into());
+            edges.push((from, to, weight));
         }
 
         SimpleANN::new(&dims, &nodes, &edges)
