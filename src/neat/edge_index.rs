@@ -23,6 +23,6 @@ impl IndexMut<usize> for SimpleANN {
 
 impl SimpleANN {
     pub fn contains(&self, innov_num: usize) -> bool {
-        self.edges.iter().find(|edge| edge.innovation == innov_num).is_some()
+        self.edges.iter().any(|edge| edge.innovation == innov_num)
     }
 }
