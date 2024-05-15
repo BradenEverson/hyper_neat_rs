@@ -62,7 +62,7 @@ impl SimpleANN {
 
     pub fn insert(&mut self, edge: (usize, usize, f32)) {
         let idx = match self.edges.iter().enumerate().rev()
-            .find(|e| e.1.from == edge.0) {
+            .find(|e| e.1.to == edge.0) {
                 Some((index, _)) => index,
                 None => 0
         };
