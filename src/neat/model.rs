@@ -129,16 +129,22 @@ impl Population {
         todo!();
     }
 
+    pub fn mutate_newgen(&mut self) {
+        todo!();
+    }
+
     pub fn evolve(&mut self, start_conditions: &[f32]) -> Result<()> {
         self.rank(start_conditions)?;
 
         if self.dbg {
+            //Gotta reimpl display
             //println!("Fittest Genome: {}\nFitness: {}", self.generation[0], (self.fitness)(&self.generation[0], start_conditions));
         }
 
         self.survival_of_the_fittest();
 
         self.cross_breed();
+        self.mutate_newgen();
 
         Ok(())
     }

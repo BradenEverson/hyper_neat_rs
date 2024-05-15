@@ -1,3 +1,4 @@
+
 use std::collections::HashMap;
 
 use super::{net::{ann::ANN, error::{AnnError, Result}}, simple_edge::SimpleEdge};
@@ -9,6 +10,7 @@ pub struct SimpleANN {
     //From, To, Weight
     pub(crate)edges: Vec<SimpleEdge>
 }
+
 
 impl From<ANN> for SimpleANN {
     fn from(value: ANN) -> Self {

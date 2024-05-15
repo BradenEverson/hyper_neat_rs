@@ -1,10 +1,10 @@
 
 #[derive(Clone, Copy)]
-pub(crate) struct SimpleEdge {
+pub struct SimpleEdge {
     pub from: usize,
     pub to: usize,
     pub weight: f32,
-    innovation: usize
+    pub innovation: usize
 }
 
 
@@ -31,5 +31,8 @@ impl SimpleEdge {
         let rate = f32::ceil(f32::log10(to as f32));
         
         (from * f32::powf(10f32, rate) as usize) + to
+    }
+    pub fn update_weight(&mut self, new_weight: f32) {
+        self.weight = new_weight
     }
 }
