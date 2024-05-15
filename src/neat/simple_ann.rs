@@ -1,4 +1,4 @@
-use std::{collections::HashMap};
+use std::collections::HashMap;
 
 use super::{net::{ann::ANN, error::{AnnError, Result}}, simple_edge::SimpleEdge};
 
@@ -60,8 +60,14 @@ impl SimpleANN {
         SimpleANN { dims: dims.into(), nodes: nodes.into(), edges: simple_edges }
     }
 
-    pub fn insert(&mut self, _edge: (usize, usize, f32)) {
-        todo!();
+    pub fn insert(&mut self, edge: (usize, usize, f32)) {
+        let idx = match self.edges.iter().enumerate().rev()
+            .find(|e| e.1.from == edge.0) {
+                Some((index, _)) => index,
+                None => 0
+        };
+
+        self.edges.insert(idx, edge.into())
     }
 
     pub fn forward<F: Into<f32> + Copy>(&self, inputs: &[F]) -> Result<Vec<f32>> {

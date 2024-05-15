@@ -1,9 +1,9 @@
 
 #[derive(Clone, Copy)]
 pub(crate) struct SimpleEdge {
-    from: usize,
-    to: usize,
-    weight: f32,
+    pub from: usize,
+    pub to: usize,
+    pub weight: f32,
     innovation: usize
 }
 
