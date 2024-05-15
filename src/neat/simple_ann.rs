@@ -60,7 +60,7 @@ impl SimpleANN {
         SimpleANN { dims: dims.into(), nodes: nodes.into(), edges: simple_edges }
     }
 
-    pub fn insert(&mut self, edge: (usize, usize, f32)) {
+    pub fn insert(&mut self, _edge: (usize, usize, f32)) {
         todo!();
     }
 
