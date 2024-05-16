@@ -153,6 +153,7 @@ impl Population {
         let mut rng = Initializer::get_rng(&self.seed);
 
         for member in self.generation.iter_mut() {
+            let mut split_queue = vec![];
             for curr_edge in member.edges.iter_mut() {
                 //Weight check
                 if rng.gen_bool(self.weight_rate as f64) {
@@ -161,9 +162,14 @@ impl Population {
                 }
                 //New node check
                 if rng.gen_bool(self.node_add_rate as f64) {
-
+                    split_queue.push(curr_edge.innovation);
                 }
             }
+
+            for innov in split_queue {
+                    member.split_edge(innov);
+            }
+
             //New connections check 
             for i in 0..(member.nodes.len() - member.dims[member.dims.len() - 1]) {
                 if rng.gen_bool(self.connect_rate as f64) {

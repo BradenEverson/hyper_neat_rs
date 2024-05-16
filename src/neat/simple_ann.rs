@@ -72,6 +72,20 @@ impl SimpleANN {
         self.edges.insert(idx, edge.into())
     }
 
+    pub fn add_node(&mut self) -> usize {
+        let res = self.nodes.len();
+
+        if self.dims.len() <= 2 {
+            self.dims.insert(1, 1);
+        } else {
+            self.dims[1] += 1;
+        }
+
+        self.nodes.insert(self.nodes.len() - self.dims[self.dims.len() - 1] - 1, res);
+
+        res
+    }
+
     pub fn forward<F: Into<f32> + Copy>(&self, inputs: &[F]) -> Result<Vec<f32>> {
         if inputs.len() != self.dims[0] {
             Err(AnnError::MismatchedInputSizeError(inputs.len(), self.dims[0]))

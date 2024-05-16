@@ -26,8 +26,8 @@ impl SimpleANN {
         self.edges.iter().any(|edge| edge.innovation == innov_num)
     }
 
-    pub fn split_edge(&mut self, target_innov: usize, middle_man: usize)  {
-        let middle = self.nodes[middle_man];
+    pub fn split_edge(&mut self, target_innov: usize)  {
+        let middle = self.add_node();
         let target = self[target_innov];
         let from = target.from;
         let to = target.to;
