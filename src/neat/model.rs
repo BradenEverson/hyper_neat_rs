@@ -1,3 +1,5 @@
+use rand::Rng;
+
 use crate::neat::net::ann::ANN;
 
 use super::{ fitness::{Fitness, FitnessFn}, net::{error::{AnnError, Result}, initializer::Initializer}, simple_ann::SimpleANN};
@@ -7,6 +9,7 @@ pub struct Population {
     fitness: FitnessFn,
     population_size: usize,
     survivor_percentage: f32,
+    mutation_power: f32,
 
     node_add_rate: f32,
     node_rem_rate: f32,
@@ -30,6 +33,7 @@ impl Default for Population {
             .with_disconnect_rate(0.05)
             .top_n_percent_survive(0.1)
             .population_size(100)
+            .with_mutation_power(0.1)
     }
 }
 
@@ -47,9 +51,17 @@ impl Population {
             outputs: 0,
             population_size: 0,
             survivor_percentage: 0f32,
-            dbg: false
+            dbg: false,
+            mutation_power: 0f32
         }
     }
+
+    pub fn with_mutation_power(mut self, mut_frac: f32) -> Self {
+        self.mutation_power = mut_frac;
+
+        self
+    }
+
     pub fn with_inputs_and_outputs(mut self, inputs: usize, outputs: usize) -> Self {
         self.inputs = inputs;
         self.outputs = outputs;
@@ -126,7 +138,18 @@ impl Population {
     }
     
     pub fn cross_breed(&mut self) {
-        todo!();
+        let mut new_gen = vec![];
+        let mut rng = rand::thread_rng();
+
+        for _ in 0..self.population_size {
+            let parent1 = &self.generation[rng.gen_range(0..self.generation.len())];
+            let parent2 = &self.generation[rng.gen_range(0..self.generation.len())];
+
+            let child = parent1.cross(parent2);
+            new_gen.push(child);
+        }
+
+        self.generation = new_gen;
     }
 
     pub fn mutate_newgen(&mut self) {

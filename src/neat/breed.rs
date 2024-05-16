@@ -18,8 +18,8 @@ impl SimpleANN {
         let union = self.edges.iter().filter(|e| partner.contains(e.innovation));
 
         for edge in union.map(|e| e.innovation) {
-            child.index_mut(edge).update_weight(match basic_rng.gen_range(-1..1).cmp(&0) {
-                Ordering::Equal | Ordering::Greater => self[edge].weight,
+            child.index_mut(edge).update_weight(match basic_rng.gen_range(0..=1).cmp(&0) {
+                Ordering::Equal => self[edge].weight,
                 _ => partner[edge].weight
             });
         }
