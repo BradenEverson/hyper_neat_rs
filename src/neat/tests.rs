@@ -4,7 +4,6 @@ mod tests {
 
     use crate::neat::{net::{ann::ANN, initializer::Initializer}, simple_ann::SimpleANN};
 
-
     #[test]
     fn test_speedier_than_norm() {
 
@@ -64,5 +63,17 @@ mod tests {
         let simp_ann_res = ann_simp.forward(&input).unwrap();
 
         assert_eq!(ann_res, simp_ann_res)
+    }
+    #[test]
+    fn test_edge_insertion() {
+        let mut new_ann = ANN::new().with_inputs(2).and_outputs(1);
+        new_ann.init(&Initializer::Normal);
+        let mut ann: SimpleANN = new_ann.into();
+
+        ann.nodes.insert(ann.nodes.len() - ann.dims[ann.dims.len() - 1] - 1, 3);
+        ann.insert((1,3,0.5));
+        ann.insert((3, 2 ,0.5));
+
+        assert!(ann.forward(&[1u8,2u8]).is_ok());
     }
 }

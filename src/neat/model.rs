@@ -52,6 +52,10 @@ impl Population {
         }
     }
 
+    pub fn get_best(&self) -> SimpleANN {
+        self.generation[0].clone()
+    }
+
     pub fn with_mutation_power(mut self, mut_frac: f32) -> Self {
         self.mutation_power = mut_frac;
 

@@ -68,11 +68,13 @@ impl SimpleANN {
             let idx = match self.edges.iter().enumerate()
                 .filter(|e| e.1.to == edge.0) 
                 .last(){
-                    Some((index, _)) => index + 1,
-                    None => 0
+                    Some((index, _)) => index,
+                    None => self.edges.len()
             };
 
+            //println!("Before: {:?}", self.edges);
             self.edges.insert(idx, edge.into());
+            //println!("After: {:?}\nNodes: {:?}\n\n", self.edges, self.nodes);
         }
 
         
@@ -81,13 +83,10 @@ impl SimpleANN {
     pub fn add_node(&mut self) -> usize {
         let res = self.nodes.len();
 
-        if self.dims.len() <= 2 {
-            self.dims.insert(1, 1);
-        } else {
-            self.dims[1] += 1;
-        }
+        self.dims[1] += 1;
 
-        self.nodes.insert(self.nodes.len() - self.dims[self.dims.len() - 1] - 1, res);
+        self.nodes.insert(self.dims[0] + self.nodes.len() - self.dims[self.dims.len() - 1] - 2, res);
+        //self.nodes.push(res);
 
         res
     }
@@ -102,10 +101,10 @@ impl SimpleANN {
             for (node, i) in inputs.iter().enumerate() {
                 state_table[node] = (*i).into();
             }
-
-            for edge in self.edges.iter() {
+            for edge in self.edges.iter().rev() {
                 let (_, from, to, weight) = Into::<(usize, usize, usize, f32)>::into(*edge);
                 
+                //println!("{:?}", state_table);
                 if !state_table[from].is_nan() {
                     let prev = match state_table[to].is_nan() {
                         true => 0f32,
@@ -114,20 +113,25 @@ impl SimpleANN {
                     state_table[to] = prev + (state_table[from] * weight);
                 } else {
                     println!("Error at {} to {}", from, to);
+                    println!("{:?}", state_table);
+                    println!("{:?}", self.nodes);
+                    println!("{:?}", self.edges);
                     return Err(AnnError::UninitializedNodeVisitError);
                 }
                 
             }
 
-            for elem in state_table.iter()
+            for node in self.nodes.iter()
                 .take(self.nodes.len()).skip(self.nodes.len() - self.dims[self.dims.len() - 1]) {
+                let elem = state_table[*node];
 
                 if elem.is_nan() {
                     res.push(0f32);
                 } else {
-                    res.push(*elem);
+                    res.push(elem);
                 }
             }
+            //println!();
 
             Ok(res)
         }
