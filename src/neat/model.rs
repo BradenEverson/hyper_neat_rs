@@ -200,9 +200,3 @@ impl Population {
     }
 
 }
-
-pub enum MutationType {
-    NewNode,
-    NewConnection,
-    KillConnection
-}
