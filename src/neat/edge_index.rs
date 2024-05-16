@@ -25,4 +25,22 @@ impl SimpleANN {
     pub fn contains(&self, innov_num: usize) -> bool {
         self.edges.iter().any(|edge| edge.innovation == innov_num)
     }
+
+    pub fn split_edge(&mut self, target_innov: usize, middle_man: usize)  {
+        let middle = self.nodes[middle_man];
+        let target = self[target_innov];
+        let from = target.from;
+        let to = target.to;
+        let weight = target.weight;
+
+        let idx = match self.edges.iter().enumerate().find(|edge| edge.1.innovation == target_innov) {
+            Some((id, _)) => id,
+            None => 0
+        };
+
+        self.edges.remove(idx);
+
+        self.insert((from, middle, weight));
+        self.insert((middle, to, 1f32));
+    }
 }
