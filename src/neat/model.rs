@@ -70,6 +70,10 @@ impl Population {
 
         self
     }
+
+    pub fn set_fitness(&mut self, fitness: FitnessFn) {
+        self.fitness = fitness;
+    }
     
     pub fn with_add_rate(mut self, add_rate: f32) -> Self {
         self.node_add_rate = add_rate;
@@ -128,13 +132,13 @@ impl Population {
         }
     }
 
-    pub fn survival_of_the_fittest(&mut self) {
+    fn survival_of_the_fittest(&mut self) {
         let lucky_few = (self.population_size as f32 * self.survivor_percentage).round() as usize;
 
         self.generation = self.generation[0..lucky_few].to_vec();
     }
     
-    pub fn cross_breed(&mut self) {
+    fn cross_breed(&mut self) {
         let mut new_gen = vec![];
         let mut rng = Initializer::get_rng(&self.seed);
 
@@ -149,7 +153,7 @@ impl Population {
         self.generation = new_gen;
     }
 
-    pub fn mutate_newgen(&mut self) {
+    fn mutate_newgen(&mut self) {
         let mut rng = Initializer::get_rng(&self.seed);
 
         for member in self.generation.iter_mut() {
@@ -157,6 +161,9 @@ impl Population {
             for curr_edge in member.edges.iter_mut() {
                 //Weight check
                 if rng.gen_bool(self.weight_rate as f64) {
+                    /*if self.dbg {
+                        println!("\tUpdating Weight on Edge: {} to {}", curr_edge.from, curr_edge.to);
+                    }*/
                     curr_edge.update_weight(curr_edge.weight + 
                         rng.gen_range(-self.mutation_power..=self.mutation_power));
                 }
@@ -167,15 +174,22 @@ impl Population {
             }
 
             for innov in split_queue {
-                    member.split_edge(innov);
+                /*if self.dbg {
+                    println!("\t\tNew Node Split");
+                }*/
+                member.split_edge(innov);
             }
 
             //New connections check 
             for i in 0..(member.nodes.len() - member.dims[member.dims.len() - 1]) {
                 if rng.gen_bool(self.connect_rate as f64) {
                     let from = member.nodes[i];
-                    let to = member.nodes[rng.gen_range(i..=member.nodes.len())];
+                    let to = member.nodes[rng.gen_range((i + 1)..member.nodes.len())];
                     let weight = self.initializer.sample(&mut Initializer::get_rng(&self.seed));
+
+                    /*if self.dbg {
+                        println!("\t\t\tNew Connection: {} to {}", from, to);
+                    }*/
 
                     member.insert((from, to, weight));
                 }
@@ -189,6 +203,7 @@ impl Population {
         if self.dbg {
             //Gotta reimpl display
             //println!("Fittest Genome: {}\nFitness: {}", self.generation[0], (self.fitness)(&self.generation[0], start_conditions));
+            println!("Best Fitness: {}", (self.fitness)(&self.generation[0], start_conditions));
         }
 
         self.survival_of_the_fittest();

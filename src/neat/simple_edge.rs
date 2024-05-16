@@ -1,5 +1,5 @@
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct SimpleEdge {
     pub from: usize,
     pub to: usize,

@@ -63,13 +63,19 @@ impl SimpleANN {
     }
 
     pub fn insert(&mut self, edge: (usize, usize, f32)) {
-        let idx = match self.edges.iter().enumerate().rev()
-            .find(|e| e.1.to == edge.0) {
-                Some((index, _)) => index,
-                None => 0
-        };
 
-        self.edges.insert(idx, edge.into())
+        if !self.edges.iter().any(|edgef| edgef.from == edge.0 && edgef.to == edge.1) {
+            let idx = match self.edges.iter().enumerate()
+                .filter(|e| e.1.to == edge.0) 
+                .last(){
+                    Some((index, _)) => index + 1,
+                    None => 0
+            };
+
+            self.edges.insert(idx, edge.into());
+        }
+
+        
     }
 
     pub fn add_node(&mut self) -> usize {
@@ -99,6 +105,7 @@ impl SimpleANN {
 
             for edge in self.edges.iter() {
                 let (_, from, to, weight) = Into::<(usize, usize, usize, f32)>::into(*edge);
+                
                 if !state_table[from].is_nan() {
                     let prev = match state_table[to].is_nan() {
                         true => 0f32,
@@ -111,12 +118,15 @@ impl SimpleANN {
                 }
                 
             }
-            println!("{:?}", state_table);
 
             for elem in state_table.iter()
                 .take(self.nodes.len()).skip(self.nodes.len() - self.dims[self.dims.len() - 1]) {
 
-                res.push(*elem);
+                if elem.is_nan() {
+                    res.push(0f32);
+                } else {
+                    res.push(*elem);
+                }
             }
 
             Ok(res)
