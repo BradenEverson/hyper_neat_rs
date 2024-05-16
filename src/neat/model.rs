@@ -10,13 +10,11 @@ pub struct Population {
     population_size: usize,
     survivor_percentage: f32,
     mutation_power: f32,
-
     node_add_rate: f32,
-    node_rem_rate: f32,
     connect_rate: f32,
-    disconnect_rate: f32,
+    weight_rate: f32,
     initializer: Initializer,
-
+    seed: Option<String>,
     inputs: usize,
     outputs: usize,
     dbg: bool
@@ -27,10 +25,8 @@ impl Default for Population {
         Population::new()
             .with_inputs_and_outputs(2, 1)
             .with_add_rate(0.05)
-            .with_delete_rate(0.01)
-            
             .with_connect_rate(0.05)
-            .with_disconnect_rate(0.05)
+            .with_weight_rate(0.05)
             .top_n_percent_survive(0.1)
             .population_size(100)
             .with_mutation_power(0.1)
@@ -43,16 +39,16 @@ impl Population {
             generation: vec![],
             fitness: Fitness::placeholder(), 
             node_add_rate: 0f32,
-            node_rem_rate: 0f32,
             connect_rate: 0f32,
-            disconnect_rate: 0f32,
+            weight_rate: 0f32,
             inputs: 0, 
             initializer: Initializer::Normal,
             outputs: 0,
             population_size: 0,
             survivor_percentage: 0f32,
             dbg: false,
-            mutation_power: 0f32
+            mutation_power: 0f32,
+            seed: None
         }
     }
 
@@ -68,25 +64,26 @@ impl Population {
 
         self
     }
+
+    pub fn with_seed(mut self, seed: String) -> Self {
+        self.seed = Some(seed);
+
+        self
+    }
     
     pub fn with_add_rate(mut self, add_rate: f32) -> Self {
         self.node_add_rate = add_rate;
         
         self
     }
-    pub fn with_delete_rate(mut self, rem_rate: f32) -> Self {
-        self.node_rem_rate = rem_rate;
+    pub fn with_weight_rate(mut self, weight_rate: f32) -> Self {
+        self.weight_rate = weight_rate;
 
         self
     }
     pub fn with_connect_rate(mut self, con_rate: f32) -> Self {
         self.connect_rate = con_rate;
     
-        self
-    }
-    pub fn with_disconnect_rate(mut self, disc_rate: f32) -> Self {
-        self.disconnect_rate = disc_rate;
-
         self
     }
 
@@ -139,7 +136,7 @@ impl Population {
     
     pub fn cross_breed(&mut self) {
         let mut new_gen = vec![];
-        let mut rng = rand::thread_rng();
+        let mut rng = Initializer::get_rng(&self.seed);
 
         for _ in 0..self.population_size {
             let parent1 = &self.generation[rng.gen_range(0..self.generation.len())];
@@ -153,7 +150,31 @@ impl Population {
     }
 
     pub fn mutate_newgen(&mut self) {
-        todo!();
+        let mut rng = Initializer::get_rng(&self.seed);
+
+        for member in self.generation.iter_mut() {
+            for curr_edge in member.edges.iter_mut() {
+                //Weight check
+                if rng.gen_bool(self.weight_rate as f64) {
+                    curr_edge.update_weight(curr_edge.weight + 
+                        rng.gen_range(-self.mutation_power..=self.mutation_power));
+                }
+                //New node check
+                if rng.gen_bool(self.node_add_rate as f64) {
+
+                }
+            }
+            //New connections check 
+            for i in 0..(member.nodes.len() - member.dims[member.dims.len() - 1]) {
+                if rng.gen_bool(self.connect_rate as f64) {
+                    let from = member.nodes[i];
+                    let to = member.nodes[rng.gen_range(i..=member.nodes.len())];
+                    let weight = self.initializer.sample(&mut Initializer::get_rng(&self.seed));
+
+                    member.insert((from, to, weight));
+                }
+            }
+        }
     }
 
     pub fn evolve(&mut self, start_conditions: &[f32]) -> Result<()> {

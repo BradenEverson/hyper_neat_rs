@@ -8,7 +8,7 @@ pub enum Initializer {
 }
 
 impl Initializer {
-    fn get_rng(seed: &Option<String>) -> Box<dyn RngCore> {
+    pub fn get_rng(seed: &Option<String>) -> Box<dyn RngCore> {
         match seed {
             Some(inner) => Box::new(Seeder::from(inner).make_rng::<Pcg64>()),
             None => Box::new(rand::thread_rng())
