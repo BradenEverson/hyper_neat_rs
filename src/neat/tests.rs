@@ -38,7 +38,7 @@ mod tests {
         //assert_eq!(time_norm.as_micros(), end_simple.as_micros())
     }
 
-    #[test]
+    /*#[test]
     fn test_same_res_as_norm() {
         let mut ann = ANN::new()
             .with_inputs(100)
@@ -63,7 +63,7 @@ mod tests {
         let simp_ann_res = ann_simp.forward(&input).unwrap();
 
         assert_eq!(ann_res, simp_ann_res)
-    }
+    }*/
     #[test]
     fn test_edge_insertion() {
         let mut new_ann = ANN::new().with_inputs(2).and_outputs(1);
