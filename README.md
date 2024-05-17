@@ -1,1 +1,1 @@
-## NEAT and HyperNEAT Implementation in Rust
+## NEAT and HyperNEAT Implementation in Rust 🧬
